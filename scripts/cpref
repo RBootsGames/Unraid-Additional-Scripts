@@ -1,0 +1,73 @@
+#!/bin/bash
+function Usage {
+    echo "Usage:"
+    echo "  Just like using cp but it will use reflink by figuring out what disk the file is on."
+    echo "  Currently doesn't work to copy directories."
+    exit
+}
+
+
+if [[ $# -eq 0 ]] || [[ $1 == "" ]]; then
+    Usage
+fi
+
+destIsDirectory=false
+ARGS=("$@")
+DESTPATH=${ARGS[-1]}
+ARGS=("${ARGS[@]/$DESTPATH}")
+
+if [[ "$DESTPATH" == */ ]]; then
+    destIsDirectory=true
+fi
+
+if [[ $# -gt 2 ]]; then
+    if [[ $destIsDirectory == false ]]; then
+        echo "If there are multiple source files, the destination needs to be a directory."
+        exit
+    fi
+fi
+
+DESTPATH=$(realpath "$DESTPATH")
+# removes '/mnt/user/' from destination
+DESTPATH=$(echo "$DESTPATH" | cut -d "/" -f4-100)
+
+if [[ $destIsDirectory == true ]]; then
+    DESTPATH+="/"
+fi
+
+# get list of all disks
+DISKS=($(/bin/ls -d /mnt/*/))
+
+
+for dir in "${DISKS[@]}";do
+    # skip 'user'
+    if [[ "$dir" == *"user"* ]]; then
+        continue
+    fi
+
+    for INP in "${ARGS[@]}"; do
+        if [[ "$INP" == "" ]]; then
+            continue
+        fi
+        # prune and remove /mnt/user
+        FULL=$(realpath "$INP")
+        FULLPATH=$(echo "$FULL" | cut -d "/" -f4-100)
+
+        CURRENT="$dir$FULLPATH"
+
+        if [[ -f "$CURRENT"  ]] || [[ -d "$CURRENT" ]]; then
+
+            if [[ $destIsDirectory == true ]] && [[ ! -d "$CURRENT" ]]; then
+                mkdir -p "$dir$DESTPATH"
+            fi
+            
+            if [[ -d "$dir$DESTPATH" ]] && [[ ! "$DESTPATH" == */ ]]; then
+                cp -r --preserve --reflink=auto "$CURRENT" "$dir$DESTPATH/"
+                echo cp -r --preserve --reflink=auto "$CURRENT" "$dir$DESTPATH/"
+            else
+                cp -r --preserve --reflink=auto "$CURRENT" "$dir$DESTPATH"
+                echo cp -r --preserve --reflink=auto "$CURRENT" "$dir$DESTPATH"
+            fi
+        fi
+    done
+done

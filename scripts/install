@@ -1,0 +1,10 @@
+#!/bin/bash
+
+CPREF=$(realpath cpref)
+DISKOF=$(realpath diskof)
+
+chmod +x "$CPREF"
+chmod +x "$DISKOF"
+
+ln -s "$CPREF" /usr/bin/cpref
+ln -s "$DISKOF" /usr/bin/diskof
