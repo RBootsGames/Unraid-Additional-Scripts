@@ -62,10 +62,8 @@ for dir in "${DISKS[@]}";do
             
             if [[ -d "$dir$DESTPATH" ]] && [[ ! "$DESTPATH" == */ ]]; then
                 cp -r --preserve --reflink=auto "$CURRENT" "$dir$DESTPATH/"
-                echo cp -r --preserve --reflink=auto "$CURRENT" "$dir$DESTPATH/"
             else
                 cp -r --preserve --reflink=auto "$CURRENT" "$dir$DESTPATH"
-                echo cp -r --preserve --reflink=auto "$CURRENT" "$dir$DESTPATH"
             fi
         fi
     done
