@@ -2,7 +2,6 @@
 function Usage {
     echo "Usage:"
     echo "  Just like using cp but it will use reflink by figuring out what disk the file is on."
-    echo "  Currently doesn't work to copy directories."
     exit
 }
 

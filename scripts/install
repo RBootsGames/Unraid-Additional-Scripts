@@ -1,7 +1,13 @@
 #!/bin/bash
 
-CPREF=$(realpath cpref)
-DISKOF=$(realpath diskof)
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+rm /usr/bin/cpref /usr/bin/cpref
+rm /usr/bin/cpref /usr/bin/diskof
+
+CPREF=$DIR"/cpref"
+DISKOF=$DIR"/diskof"
+
 
 chmod +x "$CPREF"
 chmod +x "$DISKOF"
